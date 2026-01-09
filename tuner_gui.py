@@ -14,6 +14,7 @@ import os
 import threading
 from audio_analyzer import analyze_audio
 from live_recorder import LiveRecorder
+from custom_button import CustomButton
 
 
 class TunerGUI:
@@ -74,48 +75,48 @@ class TunerGUI:
         button_frame = tk.Frame(file_frame, bg='#1a1a2e')
         button_frame.pack()
         
-        self.upload_button = tk.Button(
+        self.upload_button = CustomButton(
             button_frame,
             text="📁 Seleccionar Archivo de Audio",
             command=self.upload_file,
             font=('Arial', 12, 'bold'),
-            bg='#00d4ff',
-            fg='#1a1a2e',
-            activebackground='#00a8cc',
+            bg='#4a90e2',
+            fg='#ffffff',
+            activebackground='#357abd',
+            activeforeground='#ffffff',
             padx=20,
             pady=10,
-            cursor='hand2',
-            relief=tk.FLAT
+            cursor='hand2'
         )
         self.upload_button.pack(side=tk.LEFT, padx=5)
         
-        self.record_button = tk.Button(
+        self.record_button = CustomButton(
             button_frame,
             text="🎤 Grabar en Vivo",
             command=self.start_live_recording,
             font=('Arial', 12, 'bold'),
-            bg='#ff6b6b',
+            bg='#e74c3c',
             fg='#ffffff',
-            activebackground='#ee5a52',
+            activebackground='#c0392b',
+            activeforeground='#ffffff',
             padx=20,
             pady=10,
-            cursor='hand2',
-            relief=tk.FLAT
+            cursor='hand2'
         )
         self.record_button.pack(side=tk.LEFT, padx=5)
         
-        self.analyze_button = tk.Button(
+        self.analyze_button = CustomButton(
             button_frame,
             text="🔍 Analizar",
             command=self.analyze_file,
             font=('Arial', 12, 'bold'),
-            bg='#16c79a',
-            fg='#1a1a2e',
-            activebackground='#11a67f',
+            bg='#27ae60',
+            fg='#ffffff',
+            activebackground='#229954',
+            activeforeground='#ffffff',
             padx=20,
             pady=10,
             cursor='hand2',
-            relief=tk.FLAT,
             state=tk.DISABLED
         )
         self.analyze_button.pack(side=tk.LEFT, padx=5)
