@@ -22,6 +22,31 @@ fileInput.addEventListener('change', (e) => {
     if (file) {
         currentFile = file;
         fileName.textContent = `Archivo: ${file.name}`;
+
+        // Configurar reproductor de audio
+        const audioPlayer = document.getElementById('audioPlayer');
+        const audioPlayerContainer = document.getElementById('audioPlayerContainer');
+        const playBtn = document.getElementById('playBtn');
+
+        audioPlayer.src = URL.createObjectURL(file);
+        audioPlayerContainer.style.display = 'block';
+
+        // Manejar botón de reproducción
+        playBtn.onclick = () => {
+            if (audioPlayer.paused) {
+                audioPlayer.play();
+                playBtn.textContent = '⏸️ Pausar Audio';
+            } else {
+                audioPlayer.pause();
+                playBtn.textContent = '▶️ Reproducir Audio';
+            }
+        };
+
+        // Resetear botón cuando termine
+        audioPlayer.onended = () => {
+            playBtn.textContent = '▶️ Reproducir Audio';
+        };
+
         analyzeFile(file);
     }
 });

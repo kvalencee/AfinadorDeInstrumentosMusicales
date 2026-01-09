@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎵 Afinador de Instrumentos Musicales</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+
 <body>
     <div class="container">
         <!-- Header -->
@@ -21,7 +23,7 @@
                     📁 Seleccionar Archivo
                 </button>
                 <input type="file" id="fileInput" accept=".wav" style="display: none;">
-                
+
                 <button id="recordBtn" class="btn btn-danger">
                     🎤 Grabar en Vivo
                 </button>
@@ -32,7 +34,7 @@
         <!-- Results Panel -->
         <div class="results-panel">
             <h2>Resultados del Análisis</h2>
-            
+
             <div id="noteDisplay" class="note-display">
                 <span class="note-text">--</span>
             </div>
@@ -41,6 +43,14 @@
                 <p id="frequency" class="info-text">Frecuencia: -- Hz</p>
                 <p id="cents" class="info-text">Desviación: -- cents</p>
                 <p id="status" class="status-text"></p>
+            </div>
+
+            <!-- Audio Player -->
+            <div id="audioPlayerContainer" class="audio-player-container" style="display: none;">
+                <button id="playBtn" class="btn btn-play">
+                    ▶️ Reproducir Audio
+                </button>
+                <audio id="audioPlayer" preload="auto"></audio>
             </div>
         </div>
 
@@ -68,4 +78,5 @@
     <script src="{{ url_for('static', filename='js/recorder.js') }}"></script>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
+
 </html>

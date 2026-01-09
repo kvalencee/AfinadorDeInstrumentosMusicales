@@ -133,6 +133,32 @@ header h1 {
     margin: 10px 0;
 }
 
+/* Audio Player */
+.audio-player-container {
+    margin-top: 30px;
+}
+
+.btn-play {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-play:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.btn-play:active {
+    transform: translateY(0);
+}
+
 .status-text {
     font-size: 1.3rem;
     font-weight: bold;
@@ -192,8 +218,13 @@ header h1 {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .loading p {
@@ -247,16 +278,16 @@ header h1 {
     header h1 {
         font-size: 2rem;
     }
-    
+
     .btn {
         padding: 12px 24px;
         font-size: 1rem;
     }
-    
+
     .note-text {
         font-size: 4rem;
     }
-    
+
     .countdown-number {
         font-size: 4rem;
     }
