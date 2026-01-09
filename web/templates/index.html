@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 Afinador de Instrumentos Musicales</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>🎵 Afinador Musical 🎵</h1>
+            <p class="subtitle">Análisis de frecuencias con FFT • Detección en tiempo real</p>
+        </header>
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <div class="button-group">
+                <button id="uploadBtn" class="btn btn-primary">
+                    📁 Seleccionar Archivo
+                </button>
+                <input type="file" id="fileInput" accept=".wav" style="display: none;">
+                
+                <button id="recordBtn" class="btn btn-danger">
+                    🎤 Grabar en Vivo
+                </button>
+            </div>
+            <p id="fileName" class="file-name">Ningún archivo seleccionado</p>
+        </div>
+
+        <!-- Results Panel -->
+        <div class="results-panel">
+            <h2>Resultados del Análisis</h2>
+            
+            <div id="noteDisplay" class="note-display">
+                <span class="note-text">--</span>
+            </div>
+
+            <div class="info-panel">
+                <p id="frequency" class="info-text">Frecuencia: -- Hz</p>
+                <p id="cents" class="info-text">Desviación: -- cents</p>
+                <p id="status" class="status-text"></p>
+            </div>
+        </div>
+
+        <!-- Waveform Visualization -->
+        <div class="visualization">
+            <canvas id="waveform" width="800" height="200"></canvas>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Analizando audio...</p>
+        </div>
+
+        <!-- Countdown Dialog -->
+        <div id="countdownDialog" class="modal" style="display: none;">
+            <div class="modal-content">
+                <h2>Prepárate para tocar...</h2>
+                <div id="countdownNumber" class="countdown-number">3</div>
+                <p>Toca una nota clara en tu instrumento</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/recorder.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

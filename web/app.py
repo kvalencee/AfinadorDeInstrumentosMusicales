@@ -56,6 +56,15 @@ def analyze():
         
         if result['success']:
             # Preparar respuesta - convertir numpy types a Python types
+            # Incluir datos de forma de onda (muestreados para reducir tamaño)
+            audio_data = result.get('audio_data', [])
+            if len(audio_data) > 1000:
+                # Submuestrear a 1000 puntos para el gráfico
+                step = len(audio_data) // 1000
+                waveform = audio_data[::step].tolist()
+            else:
+                waveform = audio_data.tolist() if hasattr(audio_data, 'tolist') else []
+            
             response = {
                 'success': True,
                 'note': result['note_formatted'],
@@ -64,7 +73,8 @@ def analyze():
                 'cents': float(result['cents']),
                 'tuning_status': result['tuning_status'],
                 'has_valid_signal': bool(result.get('has_valid_signal', True)),
-                'signal_strength': float(result.get('signal_strength', 0))
+                'signal_strength': float(result.get('signal_strength', 0)),
+                'waveform': waveform[:1000]  # Máximo 1000 puntos
             }
             return jsonify(response)
         else:
