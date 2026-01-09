@@ -1,18 +1,17 @@
 """
-Audio Analyzer Module
-Handles audio file loading, FFT analysis, and note detection
+Audio Analysis Module
+Analyzes audio files to detect musical notes using FFT
 """
 
 import numpy as np
-from scipy.io import wavfile
 from scipy.fft import fft, fftfreq
-import wave
+import soundfile as sf  # Reemplaza scipy.io.wavfile para soportar más formatos
 from note_frequencies import get_note_from_frequency, format_note_name
 
 
 def load_audio(file_path):
     """
-    Load audio file and return audio data with sample rate
+    Load audio file (supports WAV, OGG, FLAC, WebM, etc.)
     
     Args:
         file_path (str): Path to audio file
@@ -21,18 +20,16 @@ def load_audio(file_path):
         tuple: (audio_data, sample_rate)
     """
     try:
-        # Try to load as WAV file
-        sample_rate, audio_data = wavfile.read(file_path)
+        # soundfile soporta múltiples formatos
+        audio_data, sample_rate = sf.read(file_path)
         
-        # Convert to mono if stereo
+        # Si es estéreo, convertir a mono
         if len(audio_data.shape) > 1:
             audio_data = np.mean(audio_data, axis=1)
         
-        # Normalize to float
-        if audio_data.dtype == np.int16:
-            audio_data = audio_data.astype(np.float32) / 32768.0
-        elif audio_data.dtype == np.int32:
-            audio_data = audio_data.astype(np.float32) / 2147483648.0
+        # Normalizar
+        if np.max(np.abs(audio_data)) > 0:
+            audio_data = audio_data / np.max(np.abs(audio_data))
         
         return audio_data, sample_rate
     
