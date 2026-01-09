@@ -25,18 +25,26 @@ Ya está instalado ✓
 
 ## 🎮 FORMAS DE USAR EL PROYECTO
 
-### 1️⃣ INTERFAZ GRÁFICA (Más fácil)
+### 1️⃣ INTERFAZ GRÁFICA CON GRABACIÓN EN VIVO (Recomendado)
 
 ```bash
 python tuner_gui.py
 ```
 
-**Pasos:**
+**Opción A: Grabar en vivo (NUEVO)**
 1. Se abre una ventana con tema oscuro
-2. Haz clic en "📁 Seleccionar Archivo de Audio"
-3. Elige un archivo WAV (hay ejemplos en la carpeta `samples/`)
-4. Haz clic en "🔍 Analizar"
+2. Haz clic en "🎤 Grabar en Vivo"
+3. Espera la cuenta regresiva (3, 2, 1...)
+4. **Toca una nota clara y sostenida** en tu instrumento durante 3 segundos
 5. ¡Listo! Verás la nota, frecuencia, desviación y la forma de onda
+
+**Opción B: Analizar archivo**
+1. Haz clic en "📁 Seleccionar Archivo de Audio"
+2. Elige un archivo WAV (hay ejemplos en la carpeta `samples/`)
+3. Haz clic en "🔍 Analizar"
+4. ¡Listo! Verás los resultados
+
+> **Nota importante**: Si grabas en vivo y no tocas nada, el programa mostrará "🔇 Sin señal" - esto es correcto, no está inventando datos. Debes tocar una nota clara para que detecte algo real.
 
 ---
 

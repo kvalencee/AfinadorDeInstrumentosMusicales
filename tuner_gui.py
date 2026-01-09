@@ -11,7 +11,9 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 import os
+import threading
 from audio_analyzer import analyze_audio
+from live_recorder import LiveRecorder
 
 
 class TunerGUI:
@@ -23,6 +25,10 @@ class TunerGUI:
         
         # Current analysis result
         self.current_result = None
+        
+        # Live recorder
+        self.recorder = LiveRecorder()
+        self.is_recording = False
         
         # Setup UI
         self.setup_ui()
@@ -82,6 +88,21 @@ class TunerGUI:
             relief=tk.FLAT
         )
         self.upload_button.pack(side=tk.LEFT, padx=5)
+        
+        self.record_button = tk.Button(
+            button_frame,
+            text="🎤 Grabar en Vivo",
+            command=self.start_live_recording,
+            font=('Arial', 12, 'bold'),
+            bg='#ff6b6b',
+            fg='#ffffff',
+            activebackground='#ee5a52',
+            padx=20,
+            pady=10,
+            cursor='hand2',
+            relief=tk.FLAT
+        )
+        self.record_button.pack(side=tk.LEFT, padx=5)
         
         self.analyze_button = tk.Button(
             button_frame,
@@ -227,6 +248,26 @@ class TunerGUI:
     def display_results(self, result):
         """Display analysis results"""
         
+        # Check if we have a valid signal
+        if not result.get('has_valid_signal', True):
+            # No valid signal detected
+            self.note_label.config(text="🔇", fg='#ff4757')
+            self.freq_label.config(
+                text=f"No se detectó señal de audio válida (RMS: {result.get('signal_strength', 0):.4f})"
+            )
+            self.cents_label.config(
+                text="Toca una nota clara en tu instrumento",
+                fg='#ffaa00'
+            )
+            self.status_label.config(
+                text="⚠️ Señal muy débil o solo ruido",
+                fg='#ff4757'
+            )
+            
+            # Still plot the waveform to show what was captured
+            self.plot_waveform(result['audio_data'], result['sample_rate'])
+            return
+        
         # Display note
         self.note_label.config(text=result['note_formatted'], fg='#00d4ff')
         
@@ -313,6 +354,114 @@ class TunerGUI:
         self.ax.tick_params(colors='#a0a0a0')
         self.ax.grid(True, alpha=0.2, color='#00d4ff')
         self.canvas.draw()
+    
+    def start_live_recording(self):
+        """Start live audio recording"""
+        if self.is_recording:
+            messagebox.showwarning("Grabando", "Ya hay una grabación en proceso")
+            return
+        
+        # Test microphone first
+        if not self.recorder.test_microphone():
+            messagebox.showerror(
+                "Error de Micrófono",
+                "No se puede acceder al micrófono.\n\n"
+                "Verifica que:\n"
+                "1. Tu micrófono esté conectado\n"
+                "2. La aplicación tenga permisos de micrófono\n"
+                "3. Ninguna otra aplicación esté usando el micrófono"
+            )
+            return
+        
+        # Show countdown dialog
+        self.show_countdown_and_record()
+    
+    def show_countdown_and_record(self):
+        """Show countdown dialog and start recording"""
+        # Create countdown dialog
+        countdown_dialog = tk.Toplevel(self.root)
+        countdown_dialog.title("Preparando Grabación")
+        countdown_dialog.geometry("400x250")
+        countdown_dialog.configure(bg='#1a1a2e')
+        countdown_dialog.resizable(False, False)
+        
+        # Center the dialog
+        countdown_dialog.transient(self.root)
+        countdown_dialog.grab_set()
+        
+        # Countdown label
+        countdown_label = tk.Label(
+            countdown_dialog,
+            text="Prepárate para tocar...",
+            font=('Arial', 16, 'bold'),
+            bg='#1a1a2e',
+            fg='#00d4ff'
+        )
+        countdown_label.pack(pady=20)
+        
+        # Number display
+        number_label = tk.Label(
+            countdown_dialog,
+            text="3",
+            font=('Arial', 72, 'bold'),
+            bg='#1a1a2e',
+            fg='#ff6b6b'
+        )
+        number_label.pack(pady=10)
+        
+        # Instruction label
+        instruction_label = tk.Label(
+            countdown_dialog,
+            text="Toca una nota clara en tu instrumento",
+            font=('Arial', 11),
+            bg='#1a1a2e',
+            fg='#a0a0a0'
+        )
+        instruction_label.pack(pady=10)
+        
+        # Countdown sequence
+        def countdown(count):
+            if count > 0:
+                number_label.config(text=str(count))
+                countdown_dialog.after(1000, lambda: countdown(count - 1))
+            else:
+                number_label.config(text="🎤", fg='#16c79a')
+                countdown_label.config(text="¡Grabando!")
+                instruction_label.config(text="Tocando nota...")
+                
+                # Start recording in a separate thread
+                threading.Thread(target=self.record_audio, args=(countdown_dialog,), daemon=True).start()
+        
+        # Start countdown
+        countdown_dialog.after(500, lambda: countdown(3))
+    
+    def record_audio(self, dialog):
+        """Record audio in a separate thread"""
+        self.is_recording = True
+        
+        try:
+            # Record audio (3 seconds)
+            output_file = self.recorder.record(duration=3.0)
+            
+            # Close countdown dialog
+            dialog.destroy()
+            
+            # Set as current file and analyze
+            self.current_file = output_file
+            self.file_label.config(text=f"Archivo: Grabación en vivo")
+            
+            # Analyze automatically
+            self.root.after(100, self.analyze_file)
+            
+        except Exception as e:
+            dialog.destroy()
+            messagebox.showerror(
+                "Error de Grabación",
+                f"No se pudo grabar el audio:\n{str(e)}"
+            )
+        
+        finally:
+            self.is_recording = False
 
 
 def main():

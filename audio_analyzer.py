@@ -50,8 +50,20 @@ def get_fundamental_frequency(audio_data, sample_rate, window_size=None):
         window_size (int): Size of analysis window (default: use full signal)
         
     Returns:
-        float: Fundamental frequency in Hz
+        tuple: (fundamental_frequency in Hz, signal_strength, is_valid_signal)
     """
+    # Check if there's enough signal amplitude
+    # RMS (Root Mean Square) gives us the average signal strength
+    rms = np.sqrt(np.mean(audio_data**2))
+    
+    # Minimum threshold for a valid signal (adjust based on testing)
+    # 0.01 means at least 1% of full scale
+    MIN_RMS_THRESHOLD = 0.01
+    
+    if rms < MIN_RMS_THRESHOLD:
+        # Signal too weak - likely silence or just noise
+        return 0.0, rms, False
+    
     # Use a window of the signal for analysis
     if window_size is None:
         window_size = len(audio_data)
@@ -85,12 +97,25 @@ def get_fundamental_frequency(audio_data, sample_rate, window_size=None):
     search_freqs = positive_freqs[min_freq_idx:max_freq_idx]
     
     if len(search_range) == 0:
-        return 0.0
+        return 0.0, rms, False
     
     peak_idx = np.argmax(search_range)
     fundamental_freq = search_freqs[peak_idx]
+    peak_magnitude = search_range[peak_idx]
     
-    return fundamental_freq
+    # Calculate Signal-to-Noise Ratio (SNR)
+    # Compare peak magnitude to average magnitude
+    avg_magnitude = np.mean(search_range)
+    snr = peak_magnitude / (avg_magnitude + 1e-10)  # Avoid division by zero
+    
+    # Require a clear peak (SNR > 3 means peak is at least 3x stronger than average)
+    MIN_SNR = 3.0
+    
+    if snr < MIN_SNR:
+        # No clear fundamental frequency - likely just noise
+        return 0.0, rms, False
+    
+    return fundamental_freq, rms, True
 
 
 def analyze_audio(file_path):
@@ -110,14 +135,34 @@ def analyze_audio(file_path):
             - 'sample_rate': Audio sample rate
             - 'duration': Audio duration in seconds
             - 'audio_data': Raw audio data for visualization
+            - 'signal_strength': RMS amplitude of the signal
+            - 'has_valid_signal': Whether a valid musical signal was detected
     """
     try:
         # Load audio
         audio_data, sample_rate = load_audio(file_path)
         duration = len(audio_data) / sample_rate
         
-        # Get fundamental frequency
-        fundamental_freq = get_fundamental_frequency(audio_data, sample_rate)
+        # Get fundamental frequency with signal validation
+        fundamental_freq, signal_strength, has_valid_signal = get_fundamental_frequency(audio_data, sample_rate)
+        
+        # Check if we have a valid signal
+        if not has_valid_signal:
+            return {
+                'frequency': 0.0,
+                'note': 'N/A',
+                'exact_frequency': 0.0,
+                'cents': 0.0,
+                'note_formatted': 'Sin señal',
+                'tuning_status': 'No se detectó señal de audio válida',
+                'sample_rate': sample_rate,
+                'duration': duration,
+                'audio_data': audio_data,
+                'signal_strength': signal_strength,
+                'has_valid_signal': False,
+                'success': True,
+                'error': None
+            }
         
         # Identify note
         note, exact_freq, cents = get_note_from_frequency(fundamental_freq)
@@ -141,6 +186,8 @@ def analyze_audio(file_path):
             'sample_rate': sample_rate,
             'duration': duration,
             'audio_data': audio_data,
+            'signal_strength': signal_strength,
+            'has_valid_signal': True,
             'success': True,
             'error': None
         }
